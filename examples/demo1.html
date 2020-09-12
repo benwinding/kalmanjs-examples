@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"
+      integrity="sha512-s+xg36jbIujB2S2VKfpGmlC3T5V2TF3lY48DX7u2r9XzGzgPsa6wTpOQA7J9iffvdeBN0q9tKzRxVxw1JviZPg=="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+      integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/kalmanjs@1.1.0/lib/kalman.min.js"></script>
+  </head>
+  <body>
+    <div id="chart-growth-kalman-data-legend"></div>
+    <canvas id="chart-growth-kalman-data"></canvas>
+    <script>
+      // INPUT DATA
+
+      const noisyDataLinear = [
+        -20.856475715917426,
+        1.741261526946749,
+        -25.08855664151979,
+        4.999573701473125,
+        27.608075860203204,
+        21.694174824101754,
+        7.415084143270466,
+        -20.963523948994617,
+        -4.678391084224631,
+        -7.065835333803106,
+        -9.907089899422079,
+        35.48554519820957,
+        11.48634261703921,
+        3.3704275948543936,
+        15.833560352343643,
+        -37.88820292908624,
+        23.170390994164713,
+        -4.602109450338748,
+        33.13499644526512,
+        13.63316454436202,
+        10.790488966484117,
+        -37.848735967142524,
+        18.742824176322102,
+        11.217965685706822,
+        18.600974654587645,
+        15.15595038335809,
+        -2.6969475613602913,
+        11.710203169152265,
+        -1.778151767639656,
+        17.351843562235974,
+        -33.007685655084174,
+        3.4322654198201175,
+        4.023483520793299,
+        31.078925429183997,
+        10.946287620030855,
+        -15.99137744174353,
+        33.28203064017286,
+        4.599300718262654,
+        42.23912790742977,
+        51.577379415623106,
+        16.60040413717827,
+        53.1080760759256,
+        89.5099651460794,
+        74.69542396281514,
+        59.0966851077902,
+        79.54257748340314,
+        72.25641371346319,
+        70.35993991384069,
+        46.38261139999877,
+        98.22678927678827,
+      ];
+
+      // KALMAN FILTERING DATA
+
+      const growthFilter = new KalmanFilter({
+        R: 0.01,
+        Q: 2,
+        A: 1.1,
+      });
+      const dataGrowthKalman = noisyDataLinear.map(function (v) {
+        return growthFilter.filter(v);
+      });
+
+      // PLOTTING DATA
+
+      const plotDataGrowthKalman = {
+        labels: noisyDataLinear.map(function (y, i) {
+          return i;
+        }),
+        datasets: [
+          {
+            label: "Kalman estimate with A=1.1",
+            fill: false,
+            backgroundColor: "rgba(220,220,220,0)",
+            borderColor: "rgba(55,14,156,0.4)",
+            pointBorderColor: "rgba(55,14,156,1)",
+            pointBackgroundColor: "#fff",
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "rgba(220,220,220,1)",
+            data: dataGrowthKalman,
+          },
+          {
+            label: "Noisy data",
+            fill: false,
+            backgroundColor: "rgba(220,220,220,0)",
+            borderColor: "rgba(201,48,119,0)",
+            pointBorderColor: "rgba(201,48,119,1.0)",
+            pointBackgroundColor: "#fff",
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "rgba(220,220,220,1)",
+            data: noisyDataLinear,
+          },
+        ],
+      };
+
+      $(window).ready(function () {
+        const ctx = $("#chart-growth-kalman-data").get(0).getContext("2d");
+        const growthKalmanChart = new Chart(ctx, {
+          type: "line",
+          data: plotDataGrowthKalman,
+        });
+        $("#chart-growth-kalman-data-legend").html(
+          growthKalmanChart.generateLegend()
+        );
+      });
+    </script>
+  </body>
+</html>
