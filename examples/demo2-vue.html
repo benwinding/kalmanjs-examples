@@ -24,15 +24,27 @@
     <div id="app">
       <div>
         <input type="range" min="0" max="1" step="0.01" v-model="R" />
-        <span>R={{R}}</span>
+        <span>R={{R}} : options.R (Process noise)</span>
       </div>
       <div>
         <input type="range" min="0" max="100" step="1" v-model="Q" />
-        <span>Q={{Q}}</span>
-        <div>
-        <input type="range" min="0" max="6" step="0.01" v-model="A" />
-        <span>A={{A}}</span>
+        <span>Q={{Q}} : options.Q (Measurement noise)</span>
       </div>
+      <div>
+        <input type="range" min="0" max="6" step="0.01" v-model="A" />
+        <span>A={{A}} : options.A (State vector)</span>
+      </div>
+      <div>
+        <input type="range" min="0" max="6" step="0.01" v-model="B" />
+        <span>B={{B}} : options.B (Control vector)</span>
+      </div>
+      <div>
+        <input type="range" min="0" max="6" step="0.01" v-model="C" />
+        <span>C={{C}} : options.C (Measurement vector)</span>
+      </div>
+      <pre>
+        {{ {R,Q,A} }}
+      </pre>
       <div v-if="hasChanged">
       </div>
 
@@ -112,6 +124,8 @@
             R: 0.01,
             Q: 2,
             A: 1.1,
+            B: 0,
+            C: 0,
           };
         },
         computed: {
@@ -129,6 +143,8 @@
               R: +this.R,
               Q: +this.Q,
               A: +this.A,
+              B: +this.B,
+              c: +this.c,
             });
             const dataGrowthKalman = noisyDataLinear.map(function (v) {
               return growthFilter.filter(v);
