@@ -20,7 +20,7 @@
   </head>
   <body>
     <div id="chart-growth-kalman-data-legend"></div>
-    <canvas id="chart-growth-kalman-data"></canvas>
+    <canvas style="max-width: 700px;" id="chart-growth-kalman-data"></canvas>
     <div id="app">
       <div>
         <input type="range" min="0" max="1" step="0.01" v-model="R" />
@@ -42,8 +42,9 @@
         <input type="range" min="0" max="6" step="0.01" v-model="C" />
         <span>C={{C}} : options.C (Measurement vector)</span>
       </div>
+      <h3>Kalmanjs Options Object</h3>
       <pre>
-        {{ {R,Q,A} }}
+        {{ {R,Q,A,B,C} }}
       </pre>
       <div v-if="hasChanged">
       </div>
@@ -125,12 +126,12 @@
             Q: 2,
             A: 1.1,
             B: 0,
-            C: 0,
+            C: 2,
           };
         },
         computed: {
           hasChanged() {
-            const a = this.R && this.Q && this.A;
+            const a = this.R && this.Q && this.A && this.B && this.C;
             this.onChanged();
             return a;
           },
@@ -144,7 +145,7 @@
               Q: +this.Q,
               A: +this.A,
               B: +this.B,
-              c: +this.c,
+              C: +this.C,
             });
             const dataGrowthKalman = noisyDataLinear.map(function (v) {
               return growthFilter.filter(v);
