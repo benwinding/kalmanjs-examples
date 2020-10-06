@@ -11,7 +11,7 @@
       integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
       crossorigin="anonymous"
     ></script>
-    <script src="https://cdn.jsdelivr.net/npm/kalmanjs@1.1.0/lib/kalman.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/wouterbulten/kalmanjs@79d9def2cf67acf2befe794509530be4cc58ab21/dist/kalman.js"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.12/vue.min.js"
       integrity="sha512-BKbSR+cfyxLdMAsE0naLReFSLg8/pjbgfxHh/k/kUC82Hy7r6HtR5hLhobaln2gcTvzkyyehrdREdjpsQwy2Jw=="
@@ -24,23 +24,27 @@
     <div id="app">
       <div>
         <input type="range" min="0" max="1" step="0.01" v-model="R" />
-        <span>R={{R}} : options.R (Process noise)</span>
+        <span>R={{ R }} : options.R (Process noise)</span>
       </div>
       <div>
         <input type="range" min="0" max="100" step="1" v-model="Q" />
-        <span>Q={{Q}} : options.Q (Measurement noise)</span>
+        <span>Q={{ Q }} : options.Q (Measurement noise)</span>
       </div>
       <div>
         <input type="range" min="0" max="6" step="0.01" v-model="A" />
-        <span>A={{A}} : options.A (State vector)</span>
+        <span>A={{ A }} : options.A (State vector)</span>
       </div>
       <div>
-        <input type="range" min="0" max="6" step="0.01" v-model="B" />
-        <span>B={{B}} : options.B (Control vector)</span>
+        <input type="range" min="0" max="1" step="0.01" v-model="B" />
+        <span>B={{ B }} : options.B (Control vector)</span>
       </div>
       <div>
         <input type="range" min="0" max="6" step="0.01" v-model="C" />
-        <span>C={{C}} : options.C (Measurement vector)</span>
+        <span>C={{ C }} : options.C (Measurement vector)</span>
+      </div>
+      <div>
+        <input type="range" min="0" max="1" step="0.01" v-model="u" />
+        <span>u={{ u }} : u (predict control)</span>
       </div>
       <h3>Kalmanjs Options Object</h3>
       <pre>
@@ -127,11 +131,12 @@
             A: 1.1,
             B: 0,
             C: 2,
+            u: 0,
           };
         },
         computed: {
           hasChanged() {
-            const a = this.R && this.Q && this.A && this.B && this.C;
+            const a = this.R + this.Q + this.A + this.B + this.C + this.u;
             this.onChanged();
             return a;
           },
@@ -147,8 +152,9 @@
               B: +this.B,
               C: +this.C,
             });
+            const u = +this.u;
             const dataGrowthKalman = noisyDataLinear.map(function (v) {
-              return growthFilter.filter(v);
+              return growthFilter.filter(v, u);
             });
 
             // PLOTTING DATA
