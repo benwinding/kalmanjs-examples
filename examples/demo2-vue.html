@@ -17,42 +17,44 @@
       integrity="sha512-BKbSR+cfyxLdMAsE0naLReFSLg8/pjbgfxHh/k/kUC82Hy7r6HtR5hLhobaln2gcTvzkyyehrdREdjpsQwy2Jw=="
       crossorigin="anonymous"
     ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js"
+      integrity="sha512-90vH1Z83AJY9DmlWa8WkjkV79yfS2n2Oxhsi2dZbIv0nC4E6m5AbH8Nh156kkM7JePmqD6tcZsfad1ueoaovww=="
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
     <div id="chart-growth-kalman-data-legend"></div>
-    <canvas style="max-width: 700px;" id="chart-growth-kalman-data"></canvas>
+    <canvas style="max-width: 700px" id="chart-growth-kalman-data"></canvas>
     <div id="app">
       <div>
         <input type="range" min="0" max="1" step="0.01" v-model="R" />
-        <span>R={{ R }} : options.R (Process noise)</span>
+        <span>R = {{ R }} : options.R (Process noise)</span>
       </div>
       <div>
         <input type="range" min="0" max="100" step="1" v-model="Q" />
-        <span>Q={{ Q }} : options.Q (Measurement noise)</span>
+        <span>Q = {{ Q }} : options.Q (Measurement noise)</span>
       </div>
       <div>
         <input type="range" min="0" max="6" step="0.01" v-model="A" />
-        <span>A={{ A }} : options.A (State vector)</span>
+        <span>A = {{ A }} : options.A (State vector)</span>
       </div>
       <div>
-        <input type="range" min="0" max="1" step="0.01" v-model="B" />
-        <span>B={{ B }} : options.B (Control vector)</span>
+        <input type="range" min="0" max="100" step="0.1" v-model="B" />
+        <span>B = {{ B }} : options.B (Control vector)</span>
       </div>
       <div>
         <input type="range" min="0" max="6" step="0.01" v-model="C" />
-        <span>C={{ C }} : options.C (Measurement vector)</span>
+        <span>C = {{ C }} : options.C (Measurement vector)</span>
       </div>
       <div>
-        <input type="range" min="0" max="1" step="0.01" v-model="u" />
-        <span>u={{ u }} : u (predict control)</span>
+        <input type="range" min="0" max="50" step="1" v-model="u" />
+        <span>u = {{ u }} : u (control)</span>
       </div>
       <h3>Kalmanjs Options Object</h3>
       <pre>
         {{ {R,Q,A,B,C} }}
       </pre>
-      <div v-if="hasChanged">
-      </div>
-
     </div>
     <script>
       // INPUT DATA
@@ -124,22 +126,34 @@
     <script>
       new Vue({
         el: "#app",
-        data: function () {
+        data() {
           return {
-            R: 0.01,
-            Q: 2,
-            A: 1.1,
+            R: 0,
+            Q: 0,
+            A: 0,
             B: 0,
-            C: 2,
+            C: 0,
             u: 0,
           };
         },
-        computed: {
-          hasChanged() {
-            const a = this.R + this.Q + this.A + this.B + this.C + this.u;
-            this.onChanged();
-            return a;
+        watch: {
+          $data: {
+            immediate: true,
+            handler: _.debounce(function () {
+              this.onChanged();
+              Vue.nextTick();
+            }, 100),
+            deep: true,
           },
+        },
+        mounted() {
+          this.R = 0.01;
+          this.Q = 2;
+          this.A = 1.1;
+          this.B = 1;
+          this.C = 2;
+          this.u = 0.3;
+          Vue.nextTick();
         },
         methods: {
           onChanged() {
